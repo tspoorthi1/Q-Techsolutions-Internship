@@ -1,0 +1,32 @@
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from queue import Queue
+model = RandomForestClassifier()
+def train_model():
+    # Features: 10 random features
+    X_train = np.random.rand(1000, 10)
+    # Labels: 1 for fraud, 0 for non-fraud (random for demonstration)
+    y_train = np.random.randint(2, size=1000)
+    model.fit(X_train, y_train)
+    print("Model trained successfully!")
+train_model()
+transaction_queue = Queue()
+def generate_transactions(num_transactions):
+    for _ in range(num_transactions):
+        transaction = {
+            'id': np.random.randint(1000000),
+            'features': np.random.rand(10)  # 10 random features
+        }
+        transaction_queue.put(transaction)
+generate_transactions(10)
+def is_fraudulent(transaction):
+    features = np.array(transaction['features']).reshape(1, -1)
+    prediction = model.predict(features)
+    return bool(prediction[0])
+while not transaction_queue.empty():
+    transaction = transaction_queue.get()
+    if is_fraudulent(transaction):
+        print(f"Fraudulent transaction detected: ID {transaction['id']}")
+    else:
+        print(f"Transaction OK: ID {transaction['id']}")
