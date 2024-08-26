@@ -1,0 +1,37 @@
+import concurrent.futures
+import requests
+from bs4 import BeautifulSoup
+def fetch_and_parse_url(url):
+    try:
+        response = requests.get(url)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        title = soup.title.string if soup.title else 'No Title'
+        word_count = len(soup.get_text().split())
+        return url, title, word_count
+    except requests.RequestException as e:
+        return url, str(e), 0
+def distribute_tasks(urls, num_workers):
+    results = {}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=num_workers) as executor:
+        future_to_url = {executor.submit(fetch_and_parse_url, url): url for url in urls}
+        for future in concurrent.futures.as_completed(future_to_url):
+            url = future_to_url[future]
+            try:
+                result_url, title, word_count = future.result()
+                results[result_url] = {'Title': title, 'Word Count': word_count}
+            except Exception as exc:
+                results[url] = {'Title': str(exc), 'Word Count': 0}
+    return results
+if __name__ == "__main__":
+    urls_to_crawl = [
+        "https://example.com",
+        "https://example.org",
+        "https://example.net",
+    ]
+    num_workers = 4  # Number of worker threads
+results = distribute_tasks(urls_to_crawl, num_workers)
+for url, result in results.items():
+        print(f"URL: {url}")
+        print(f"Title: {result['Title']}")
+        print(f"Word Count: {result['Word Count']}")
+        print("-" * 40)
