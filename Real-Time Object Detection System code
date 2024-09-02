@@ -1,0 +1,16 @@
+*(CODE FOR ONLY IMAGE DETECTION)*
+
+!pip install ultralytics -q
+!yolo detect predict model=yolov8m.pt source="/content/video1.mp4"
+!ffmpeg -i {"/content/runs/detect/predict3/video1.avi"} -vcodec libx264{"final.mp4"}
+
+*(CODE FOR ONLY IMAGE DETECTION)*
+
+!pip install ultralytics -q
+import torch , cv2
+model = torch.hub.load('ultralytics/yolov5','yolov5s',pretrained=True)
+results = model(cv2.imread("/content/people.jpeg"))
+results
+results.show()
+dir(results)
+results.pandas().xyxy[0]
