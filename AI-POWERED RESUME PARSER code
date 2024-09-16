@@ -1,0 +1,72 @@
+import spacy
+nlp = spacy.load("en_core_web_sm")
+resume_text = """
+    John Doe
+    1234 Main Street, Springfield, IL 62704
+    johndoe@example.com | +1-555-123-4567
+
+    Objective:
+    Software engineer with 5+ years of experience in full-stack web development seeking a challenging role.
+
+    Education:
+    B.S. in Computer Science, University of Illinois, May 2018
+    GPA: 3.7/4.0
+
+    Experience:
+    Software Engineer, TechCorp, Chicago, IL (June 2018 – Present)
+    - Developed scalable web applications using Python, Django, and React.
+    - Improved application performance by 25% through optimizing SQL queries.
+
+    Intern, WebDev Inc., Springfield, IL (June 2017 – Aug 2017)
+    - Assisted in building frontend components using HTML, CSS, and JavaScript.
+
+    Skills:
+    Python, Django, React, SQL, HTML, CSS, JavaScript, Git
+"""
+
+# Parse resume text using SpaCy NLP
+doc = nlp(resume_text)
+import re
+def extract_phone_numbers(text):
+    phone_pattern = re.compile(r'\+?\d[\d -]{8,12}\d')
+    return phone_pattern.findall(text)
+def extract_personal_details(doc):
+    name = None
+    email = None
+    phone = extract_phone_numbers(resume_text)
+
+    for ent in doc.ents:
+        if ent.label_ == "PERSON" and not name:
+            name = ent.text
+        elif ent.label_ == "ORG" and "university" in ent.text.lower():
+            continue  # Avoid picking organization names as person names
+
+    for token in doc:
+        if token.like_email:
+            email = token.text
+
+    return {"Name": name, "Email": email, "Phone": phone}
+def extract_education(doc):
+    education = []
+    for ent in doc.ents:
+        if ent.label_ == "ORG" and "university" in ent.text.lower():
+            education.append(ent.text)
+    return education
+def extract_experience(doc):
+    experience = []
+    for sent in doc.sents:
+        if "experience" in sent.text.lower():
+            experience.append(sent.text)
+    return experience
+def extract_skills(text):
+    skill_keywords = ["Python", "Django", "React", "SQL", "HTML", "CSS", "JavaScript", "Git"]
+    skills = [skill for skill in skill_keywords if skill.lower() in text.lower()]
+    return skills
+personal_details = extract_personal_details(doc)
+education = extract_education(doc)
+experience = extract_experience(doc)
+skills = extract_skills(resume_text)
+print("Personal Details:", personal_details)
+print("Education:", education)
+print("Experience:", experience)
+print("Skills:", skills)
