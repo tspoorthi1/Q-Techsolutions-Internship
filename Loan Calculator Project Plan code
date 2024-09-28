@@ -1,0 +1,28 @@
+def calculate_monthly_payment(loan_amount, annual_interest_rate, loan_term):
+    """Calculate monthly loan payment."""
+    monthly_interest_rate = annual_interest_rate / 100 / 12
+    number_of_payments = loan_term * 12
+    monthly_payment = (loan_amount * monthly_interest_rate) / (1 - (1 + monthly_interest_rate) ** -number_of_payments)
+    return monthly_payment
+
+def main():
+    """Main function to run the loan calculator."""
+    print("Welcome to the Loan Calculator")
+    
+    # User inputs
+    loan_amount = float(input("Enter the loan amount ($): "))
+    annual_interest_rate = float(input("Enter the annual interest rate (in %): "))
+    loan_term = int(input("Enter the loan term (in years): "))
+    
+    # Calculate monthly payment
+    monthly_payment = calculate_monthly_payment(loan_amount, annual_interest_rate, loan_term)
+    total_payment = monthly_payment * loan_term * 12
+    total_interest = total_payment - loan_amount
+
+    # Display results
+    print(f"\nMonthly Payment: ${monthly_payment:.2f}")
+    print(f"Total Payment: ${total_payment:.2f}")
+    print(f"Total Interest Paid: ${total_interest:.2f}")
+
+if __name__ == "__main__":
+    main()
